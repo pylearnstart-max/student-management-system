@@ -115,3 +115,23 @@ class StudentRepository:
 
         cursor.close()
         conn.close()
+    
+    #SEARCH BY NAME
+    def search_student(self, name):
+        conn = get_connection()
+        cursor = conn.cursor()
+
+        query = """
+        SELECT StudentID, Name, Email, Phone, Course, Age, Status
+        FROM Students
+        WHERE Name LIKE ?
+        """
+
+        cursor.execute(query, ('%' + name + '%',))
+
+        rows = cursor.fetchall()
+
+        cursor.close()
+        conn.close()
+
+        return rows

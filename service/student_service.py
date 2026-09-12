@@ -69,3 +69,7 @@ class StudentService:
         self.repo.delete_student(student_id)
 
         return "Student deleted successfully"
+    # SEARCH BY NAME
+    def search_student(self, name):
+
+        return self.repo.search_student(name)

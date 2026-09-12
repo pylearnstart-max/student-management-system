@@ -163,3 +163,7 @@ def delete_student(student_id):
         return jsonify({
             "error": str(e)
         }), 500
+@app.route("/students/search/<string:name>", methods=["GET"])
+def search_student(name):
+    students = StudentService.search_student(name)
+    return jsonify(students), 200
