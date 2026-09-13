@@ -1,5 +1,7 @@
+
 import sys
 import os
+import time
 
 PROJECT_ROOT = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
@@ -16,10 +18,12 @@ service = StudentService()
 
 
 # CREATE
+unique_id = int(time.time())
+
 student = Student(
     name="meena",
-    email="meena@gmail.com",
-    phone="9123456789",
+    email=f"meena{unique_id}@gmail.com",
+    phone="9123456790",
     course="Python",
     age=22,
     status="Active"
@@ -63,6 +67,7 @@ try:
     found = service.get_student_by_id(student.student_id)
 
     print("\nSTUDENT BY ID")
+
     print(
         found.student_id,
         found.name,
