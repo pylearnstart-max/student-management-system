@@ -17,8 +17,8 @@ service = StudentService()
 
 # CREATE
 student = Student(
-    name="Sita",
-    email="sita@gmail.com",
+    name="meena",
+    email="meena@gmail.com",
     phone="9123456789",
     course="Python",
     age=22,
@@ -79,7 +79,7 @@ except Exception as e:
 
 # SEARCH
 try:
-    results = service.search_student("Sita")
+    results = service.search_student("meena")
 
     print("\nSEARCH RESULT")
 
