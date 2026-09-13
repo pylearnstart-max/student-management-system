@@ -1,7 +1,6 @@
+
 # Jenkins automatic CI test
-import sys
-import os
-import time
+
 import sys
 import os
 import time
@@ -19,7 +18,7 @@ from model.student_model import Student
 
 service = StudentService()
 
-# Track whether any test failed
+# Track test failures
 test_failed = False
 
 
@@ -42,6 +41,9 @@ try:
     print("ID:", saved_student.student_id)
     print("Name:", saved_student.name)
     print("Email:", saved_student.email)
+
+    # Update student object with generated ID
+    student.student_id = saved_student.student_id
 
 except Exception as e:
     print("CREATE ERROR:", e)
@@ -113,7 +115,7 @@ except Exception as e:
     test_failed = True
 
 
-# Final test result
+# FINAL RESULT
 if test_failed:
     print("\nTESTS FAILED")
     sys.exit(1)
