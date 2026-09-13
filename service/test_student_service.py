@@ -16,6 +16,9 @@ from model.student_model import Student
 
 service = StudentService()
 
+# Track whether any test failed
+test_failed = False
+
 
 # CREATE
 unique_id = int(time.time())
@@ -39,6 +42,7 @@ try:
 
 except Exception as e:
     print("CREATE ERROR:", e)
+    test_failed = True
 
 
 # READ ALL
@@ -60,6 +64,7 @@ try:
 
 except Exception as e:
     print("READ ERROR:", e)
+    test_failed = True
 
 
 # READ BY ID
@@ -80,6 +85,7 @@ try:
 
 except Exception as e:
     print("GET BY ID ERROR:", e)
+    test_failed = True
 
 
 # SEARCH
@@ -101,3 +107,14 @@ try:
 
 except Exception as e:
     print("SEARCH ERROR:", e)
+    test_failed = True
+
+
+# Final test result
+if test_failed:
+    print("\nTESTS FAILED")
+    sys.exit(1)
+else:
+    print("\nALL TESTS PASSED")
+    sys.exit(0)
+
