@@ -1,3 +1,4 @@
+
 from flask import Blueprint, request, jsonify
 
 from model.student_model import Student
@@ -9,12 +10,29 @@ student_api = Blueprint("student_api", __name__)
 service = StudentService()
 
 
-# CREATE
+def student_to_dict(student):
+    return {
+        "student_id": student.student_id,
+        "name": student.name,
+        "email": student.email,
+        "phone": student.phone,
+        "course": student.course,
+        "age": student.age,
+        "status": student.status
+    }
+
+
+# CREATE STUDENT
 @student_api.route("/students", methods=["POST"])
 def add_student():
 
     try:
         data = request.get_json()
+
+        if not data:
+            return jsonify({
+                "error": "Request body is required"
+            }), 400
 
         student = Student(
             name=data.get("name"),
@@ -25,10 +43,11 @@ def add_student():
             status=data.get("status", "Active")
         )
 
-        message = service.add_student(student)
+        saved_student = service.add_student(student)
 
         return jsonify({
-            "message": message
+            "message": "Student added successfully",
+            "student": student_to_dict(saved_student)
         }), 201
 
     except ValueError as e:
@@ -44,27 +63,19 @@ def add_student():
         }), 500
 
 
-# GET ALL
+# GET ALL STUDENTS
 @student_api.route("/students", methods=["GET"])
 def get_all_students():
 
     try:
-        rows = service.get_all_students()
+        students = service.get_all_students()
 
-        students = []
+        result = []
 
-        for row in rows:
-            students.append({
-                "student_id": row[0],
-                "name": row[1],
-                "email": row[2],
-                "phone": row[3],
-                "course": row[4],
-                "age": row[5],
-                "status": row[6]
-            })
+        for student in students:
+            result.append(student_to_dict(student))
 
-        return jsonify(students), 200
+        return jsonify(result), 200
 
     except Exception as e:
 
@@ -73,24 +84,16 @@ def get_all_students():
         }), 500
 
 
-# GET BY ID
+# GET STUDENT BY ID
 @student_api.route("/students/<int:student_id>", methods=["GET"])
 def get_student_by_id(student_id):
 
     try:
-        row = service.get_student_by_id(student_id)
+        student = service.get_student_by_id(student_id)
 
-        student = {
-            "student_id": row[0],
-            "name": row[1],
-            "email": row[2],
-            "phone": row[3],
-            "course": row[4],
-            "age": row[5],
-            "status": row[6]
-        }
-
-        return jsonify(student), 200
+        return jsonify(
+            student_to_dict(student)
+        ), 200
 
     except ValueError as e:
 
@@ -105,12 +108,17 @@ def get_student_by_id(student_id):
         }), 500
 
 
-# UPDATE
+# UPDATE STUDENT
 @student_api.route("/students/<int:student_id>", methods=["PUT"])
 def update_student(student_id):
 
     try:
         data = request.get_json()
+
+        if not data:
+            return jsonify({
+                "error": "Request body is required"
+            }), 400
 
         student = Student(
             student_id=student_id,
@@ -122,10 +130,11 @@ def update_student(student_id):
             status=data.get("status", "Active")
         )
 
-        message = service.update_student(student)
+        updated_student = service.update_student(student)
 
         return jsonify({
-            "message": message
+            "message": "Student updated successfully",
+            "student": student_to_dict(updated_student)
         }), 200
 
     except ValueError as e:
@@ -141,15 +150,15 @@ def update_student(student_id):
         }), 500
 
 
-# DELETE
+# DELETE STUDENT
 @student_api.route("/students/<int:student_id>", methods=["DELETE"])
 def delete_student(student_id):
 
     try:
-        message = service.delete_student(student_id)
+        service.delete_student(student_id)
 
         return jsonify({
-            "message": message
+            "message": "Student deleted successfully"
         }), 200
 
     except ValueError as e:
@@ -163,7 +172,24 @@ def delete_student(student_id):
         return jsonify({
             "error": str(e)
         }), 500
+
+
+# SEARCH STUDENT BY NAME
 @student_api.route("/students/search/<string:name>", methods=["GET"])
 def search_student(name):
-    students = StudentService.search_student(name)
-    return jsonify(students), 200
+
+    try:
+        students = service.search_student(name)
+
+        result = []
+
+        for student in students:
+            result.append(student_to_dict(student))
+
+        return jsonify(result), 200
+
+    except Exception as e:
+
+        return jsonify({
+            "error": str(e)
+        }), 500
