@@ -1,5 +1,5 @@
 
-# Jenkins automatic CI test
+# CI automatic trigger test
 
 import sys
 import os
@@ -22,7 +22,10 @@ service = StudentService()
 test_failed = False
 
 
+# =========================
 # CREATE
+# =========================
+
 unique_id = int(time.time())
 
 student = Student(
@@ -42,7 +45,7 @@ try:
     print("Name:", saved_student.name)
     print("Email:", saved_student.email)
 
-    # Update student object with generated ID
+    # Store generated ID for GET BY ID test
     student.student_id = saved_student.student_id
 
 except Exception as e:
@@ -50,7 +53,10 @@ except Exception as e:
     test_failed = True
 
 
+# =========================
 # READ ALL
+# =========================
+
 try:
     students = service.get_all_students()
 
@@ -72,7 +78,10 @@ except Exception as e:
     test_failed = True
 
 
+# =========================
 # READ BY ID
+# =========================
+
 try:
     found = service.get_student_by_id(student.student_id)
 
@@ -93,7 +102,10 @@ except Exception as e:
     test_failed = True
 
 
+# =========================
 # SEARCH
+# =========================
+
 try:
     results = service.search_student("meena")
 
@@ -115,7 +127,10 @@ except Exception as e:
     test_failed = True
 
 
+# =========================
 # FINAL RESULT
+# =========================
+
 if test_failed:
     print("\nTESTS FAILED")
     sys.exit(1)
