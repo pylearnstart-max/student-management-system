@@ -1,6 +1,8 @@
+
 import sys
 import os
 
+# Add project root folder to Python path
 PROJECT_ROOT = os.path.dirname(
     os.path.dirname(os.path.abspath(__file__))
 )
@@ -14,6 +16,7 @@ from model.student_model import Student
 
 class StudentRepository:
 
+    # CREATE
     def add_student(self, student):
         conn = get_connection()
         cursor = conn.cursor()
@@ -21,7 +24,14 @@ class StudentRepository:
         cursor.execute(
             """
             INSERT INTO students
-            (student_name, email, phone, course, age, status)
+            (
+                student_name,
+                email,
+                phone,
+                course,
+                age,
+                status
+            )
             VALUES (%s, %s, %s, %s, %s, %s)
             RETURNING student_id
             """,
@@ -43,6 +53,7 @@ class StudentRepository:
 
         return student
 
+    # READ ALL
     def get_all_students(self):
         conn = get_connection()
         cursor = conn.cursor()
@@ -70,20 +81,21 @@ class StudentRepository:
         students = []
 
         for row in rows:
-            students.append(
-                Student(
-                    student_id=row[0],
-                    name=row[1],
-                    email=row[2],
-                    phone=row[3],
-                    course=row[4],
-                    age=row[5],
-                    status=row[6]
-                )
+            student = Student(
+                student_id=row[0],
+                name=row[1],
+                email=row[2],
+                phone=row[3],
+                course=row[4],
+                age=row[5],
+                status=row[6]
             )
+
+            students.append(student)
 
         return students
 
+    # READ BY ID
     def get_student_by_id(self, student_id):
         conn = get_connection()
         cursor = conn.cursor()
@@ -122,6 +134,7 @@ class StudentRepository:
             status=row[6]
         )
 
+    # UPDATE
     def update_student(self, student):
         conn = get_connection()
         cursor = conn.cursor()
@@ -150,11 +163,13 @@ class StudentRepository:
         )
 
         conn.commit()
+
         cursor.close()
         conn.close()
 
         return student
 
+    # DELETE
     def delete_student(self, student_id):
         conn = get_connection()
         cursor = conn.cursor()
@@ -168,11 +183,13 @@ class StudentRepository:
         )
 
         conn.commit()
+
         cursor.close()
         conn.close()
 
         return True
 
+    # SEARCH BY NAME
     def search_student(self, name):
         conn = get_connection()
         cursor = conn.cursor()
@@ -202,16 +219,16 @@ class StudentRepository:
         students = []
 
         for row in rows:
-            students.append(
-                Student(
-                    student_id=row[0],
-                    name=row[1],
-                    email=row[2],
-                    phone=row[3],
-                    course=row[4],
-                    age=row[5],
-                    status=row[6]
-                )
+            student = Student(
+                student_id=row[0],
+                name=row[1],
+                email=row[2],
+                phone=row[3],
+                course=row[4],
+                age=row[5],
+                status=row[6]
             )
+
+            students.append(student)
 
         return students
