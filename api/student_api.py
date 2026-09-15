@@ -193,3 +193,62 @@ def search_student(name):
         return jsonify({
             "error": str(e)
         }), 500
+# AI TOOL - GET STUDENT DATA
+@student_api.route("/students/<int:student_id>/ai", methods=["GET"])
+def get_student_ai(student_id):
+
+    try:
+        from ai_tool import get_student_from_db
+
+        student = get_student_from_db(student_id)
+
+        if not student:
+            return jsonify({
+                "error": "Student not found"
+            }), 404
+
+        return jsonify({
+            "message": "Student data retrieved using AI tool",
+            "student": {
+                "student_id": student[0],
+                "student_name": student[1],
+                "email": student[2],
+                "phone": student[3],
+                "course": student[4],
+                "age": student[5],
+                "status": student[6]
+            }
+        }), 200
+
+    except Exception as e:
+
+        return jsonify({
+            "error": str(e)
+        }), 500 
+# AI QUESTION ENDPOINT
+@student_api.route("/students/ai", methods=["POST"])
+def student_ai_question():
+
+    try:
+        data = request.get_json()
+
+        if not data or "question" not in data:
+            return jsonify({
+                "error": "Question is required"
+            }), 400
+
+        question = data["question"]
+
+        from ai_student_summary import ai_agent
+
+        response = ai_agent(question)
+
+        return jsonify({
+            "question": question,
+            "ai_response": response
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "error": str(e)
+        }), 500
