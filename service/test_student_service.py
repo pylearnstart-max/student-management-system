@@ -1,140 +1,97 @@
-
-# CI automatic trigger test
-
-import sys
-import os
-import time
-
-PROJECT_ROOT = os.path.dirname(
-    os.path.dirname(os.path.abspath(__file__))
-)
-
-if PROJECT_ROOT not in sys.path:
-    sys.path.append(PROJECT_ROOT)
+import pytest
 
 from service.student_service import StudentService
 from model.student_model import Student
 
 
-service = StudentService()
-
-# Track test failures
-test_failed = False
-
-
-# =========================
-# CREATE
-# =========================
-
-unique_id = int(time.time())
-
-student = Student(
-    name="meena",
-    email=f"meena{unique_id}@gmail.com",
-    phone="9123456790",
-    course="Python",
-    age=22,
-    status="Active"
-)
-
-try:
-    saved_student = service.add_student(student)
-
-    print("CREATE SUCCESS")
-    print("ID:", saved_student.student_id)
-    print("Name:", saved_student.name)
-    print("Email:", saved_student.email)
-
-    # Store generated ID for GET BY ID test
-    student.student_id = saved_student.student_id
-
-except Exception as e:
-    print("CREATE ERROR:", e)
-    test_failed = True
+@pytest.fixture
+def student_service():
+    return StudentService()
 
 
-# =========================
-# READ ALL
-# =========================
+def test_add_student(student_service):
 
-try:
-    students = service.get_all_students()
-
-    print("\nALL STUDENTS")
-
-    for s in students:
-        print(
-            s.student_id,
-            s.name,
-            s.email,
-            s.phone,
-            s.course,
-            s.age,
-            s.status
-        )
-
-except Exception as e:
-    print("READ ERROR:", e)
-    test_failed = True
-
-
-# =========================
-# READ BY ID
-# =========================
-
-try:
-    found = service.get_student_by_id(student.student_id)
-
-    print("\nSTUDENT BY ID")
-
-    print(
-        found.student_id,
-        found.name,
-        found.email,
-        found.phone,
-        found.course,
-        found.age,
-        found.status
+    student = Student(
+        name="Jenkins Test Student",
+        email="jenkins_test@example.com",
+        phone="9999999999",
+        course="Python",
+        age=21,
+        status="Active"
     )
 
-except Exception as e:
-    print("GET BY ID ERROR:", e)
-    test_failed = True
+    result = student_service.add_student(student)
+
+    assert result is not None
 
 
-# =========================
-# SEARCH
-# =========================
+def test_get_all_students(student_service):
 
-try:
-    results = service.search_student("meena")
+    result = student_service.get_all_students()
 
-    print("\nSEARCH RESULT")
-
-    for s in results:
-        print(
-            s.student_id,
-            s.name,
-            s.email,
-            s.phone,
-            s.course,
-            s.age,
-            s.status
-        )
-
-except Exception as e:
-    print("SEARCH ERROR:", e)
-    test_failed = True
+    assert result is not None
+    assert isinstance(result, list)
 
 
-# =========================
-# FINAL RESULT
-# =========================
+def test_get_student_by_id(student_service):
 
-if test_failed:
-    print("\nTESTS FAILED")
-    sys.exit(1)
-else:
-    print("\nALL TESTS PASSED")
-    sys.exit(0)
+    students = student_service.get_all_students()
 
+    if not students:
+        pytest.skip("No students available in database")
+
+    student_id = students[0].student_id
+
+    result = student_service.get_student_by_id(student_id)
+
+    assert result is not None
+
+
+def test_search_student(student_service):
+
+    result = student_service.search_student("Jenkins")
+
+    assert result is not None
+    assert isinstance(result, list)
+
+
+def test_add_student_name_validation(student_service):
+
+    student = Student(
+        name="",
+        email="test@example.com",
+        phone="9999999999",
+        course="Python",
+        age=21
+    )
+
+    with pytest.raises(ValueError, match="Name is required"):
+        student_service.add_student(student)
+
+
+def test_add_student_email_validation(student_service):
+
+    student = Student(
+        name="Test Student",
+        email="",
+        phone="9999999999",
+        course="Python",
+        age=21
+    )
+
+    with pytest.raises(ValueError, match="Email is required"):
+        student_service.add_student(student)
+
+
+def test_add_student_age_validation(student_service):
+
+    student = Student(
+        name="Test Student",
+        email="test@example.com",
+        phone="9999999999",
+        course="Python",
+        age=17
+    )
+
+    with pytest.raises(ValueError, match="Age must be 18 or above"):
+        student_service.add_student(student)
